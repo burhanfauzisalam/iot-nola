@@ -4,7 +4,7 @@ document.getElementById("lamp-toggle").addEventListener("click", function () {
 });
 
 function controlLamp(status) {
-  fetch("http://192.168.18.99:3000/lamp-control", {
+  fetch("http://iotserver.belajarcoding.web.id/lamp-control", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
