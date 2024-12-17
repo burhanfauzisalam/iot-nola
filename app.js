@@ -33,7 +33,15 @@ mqttClient.on("error", (err) => {
 
 // API Endpoint untuk mengontrol lampu
 app.post("/lamp-control", (req, res) => {
-  const { status } = req.body;
+  const { lampId, status } = req.body;
+
+  // Validasi input
+  if (!lampId || !["1", "2", "3"].includes(lampId)) {
+    return res.status(400).json({
+      success: false,
+      message: "lampId harus '1', '2', atau '3'",
+    });
+  }
 
   if (!status || (status !== "ON" && status !== "OFF")) {
     return res.status(400).json({
@@ -42,8 +50,10 @@ app.post("/lamp-control", (req, res) => {
     });
   }
 
+  // Tentukan topik berdasarkan lampId
+  const topic = `light${lampId}/status`;
+
   // Publish status ke topik MQTT
-  const topic = "light/status";
   mqttClient.publish(topic, status, (err) => {
     if (err) {
       console.error("Gagal mengirim pesan ke broker MQTT:", err);
@@ -56,7 +66,7 @@ app.post("/lamp-control", (req, res) => {
     console.log(`Pesan '${status}' berhasil dikirim ke topik ${topic}`);
     res.json({
       success: true,
-      message: `Lampu ${status === "ON" ? "menyala" : "mati"}`,
+      message: `Lampu ${lampId} ${status === "ON" ? "menyala" : "mati"}`,
     });
   });
 });

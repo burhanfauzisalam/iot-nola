@@ -3,19 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kontrol Lampu</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Kontrol 3 Lampu</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      text-align: center;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .lamp-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .lamp-btn:hover {
+      background-color: #45a049;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>Kontrol Lampu</h1>
+    <h1>Kontrol 3 Lampu</h1>
     <div id="lamp-status">
-      <!-- Mengubah tombol menjadi satu tombol toggle -->
-      <button id="lamp-toggle" class="lamp-btn">Matikan</button>
+      <!-- Tombol untuk Lampu 1 -->
+      <button id="lamp1-toggle" class="lamp-btn" data-lampid="1">Matikan Lampu 1</button>
+      <!-- Tombol untuk Lampu 2 -->
+      <button id="lamp2-toggle" class="lamp-btn" data-lampid="2">Matikan Lampu 2</button>
+      <!-- Tombol untuk Lampu 3 -->
+      <button id="lamp3-toggle" class="lamp-btn" data-lampid="3">Matikan Lampu 3</button>
     </div>
     <div id="message"></div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // Tambahkan event listener untuk setiap tombol lampu
+    const lampButtons = document.querySelectorAll(".lamp-btn");
+
+    lampButtons.forEach(button => {
+      button.addEventListener("click", function () {
+        const lampId = this.getAttribute("data-lampid"); // Ambil ID lampu dari atribut data
+        const currentStatus = this.textContent.includes("Matikan") ? "OFF" : "ON"; // Tentukan status baru
+        controlLamp(lampId, currentStatus, this); // Kirim status baru ke fungsi
+      });
+    });
+
+    // Fungsi untuk mengontrol lampu
+    function controlLamp(lampId, status, button) {
+      fetch("http://localhost:3000/lamp-control", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ lampId: lampId, status: status }), // Kirim ID lampu dan status
+      })
+      .then(response => response.json())
+      .then(data => {
+        const messageElement = document.getElementById("message");
+
+        if (data.success) {
+          // Perbarui teks tombol dan warna berdasarkan status
+          if (status === "ON") {
+            button.textContent = `Matikan Lampu ${lampId}`;
+            button.style.backgroundColor = "red";
+            button.style.color = "white";
+            messageElement.textContent = `Lampu ${lampId} menyala`;
+          } else {
+            button.textContent = `Nyalakan Lampu ${lampId}`;
+            button.style.backgroundColor = "green";
+            button.style.color = "white";
+            messageElement.textContent = `Lampu ${lampId} mati`;
+          }
+        } else {
+          messageElement.textContent = data.message;
+          messageElement.style.color = "red";
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        document.getElementById("message").textContent = "Terjadi kesalahan!";
+      });
+    }
+  </script>
 </body>
 </html>
