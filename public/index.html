@@ -4,16 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kontrol 3 Lampu</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
       font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
+      background-color: #f8f9fa;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -21,55 +17,74 @@
       margin: 0;
     }
 
-    .container {
-      text-align: center;
-      background-color: #fff;
-      padding: 20px;
+    .card {
       border-radius: 10px;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      width: 300px;
     }
 
-    h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    .lamp-btn {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      margin: 10px;
+    .lamp-btn{
       font-size: 16px;
-      cursor: pointer;
-      border-radius: 5px;
       transition: background-color 0.3s ease;
+      border: none;
+      background: transparent;
+      cursor: pointer;
     }
 
-    .lamp-btn:hover {
-      background-color: #45a049;
-    }
+    /* .lamp-btn h4 {
+      white-space: nowrap;
+      margin-top: 10px;
+    } */
 
-    #message {
+    /* #message {
       margin-top: 20px;
       font-size: 16px;
-    }
+    } */
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Kontrol 3 Lampu</h1>
-    <div id="lamp-status">
-      <!-- Tombol untuk Lampu 1 -->
-      <button id="lamp1-toggle" class="lamp-btn" data-lampid="1">Matikan Lampu 1</button>
-      <!-- Tombol untuk Lampu 2 -->
-      <button id="lamp2-toggle" class="lamp-btn" data-lampid="2">Matikan Lampu 2</button>
-      <!-- Tombol untuk Lampu 3 -->
-      <button id="lamp3-toggle" class="lamp-btn" data-lampid="3">Matikan Lampu 3</button>
-    </div>
-    <div id="message"></div>
+  <div class="card p-4 text-center">
+    <h1 class="mb-4">Kontrol 3 Lampu</h1>
+      <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-12 col-md-4 col-lg-4">
+          <button id="lamp1-toggle" class="btn lamp-btn" data-lampid="1" style="width: 40%;">
+            <img src="off.png" alt="Lampu 1" style="width: 100%; height: 83%; padding-bottom:20px">
+            <h4>Lampu Depan</h4>
+          </button>
+        </div>
+        <div class="col-12 col-md-4 col-lg-4">
+          <button id="lamp2-toggle" class="btn lamp-btn" data-lampid="2" style="width: 40%;">
+            <img src="off.png" alt="Lampu 2" style="width: 100%; height: 83%; padding-bottom:20px">
+            <h4>Lampu Samping</h4>
+          </button>
+        </div>
+        <div class="col-12 col-md-4 col-lg-4">
+          <button id="lamp3-toggle" class="btn lamp-btn" data-lampid="3" style="width: 40%;">
+            <img src="off.png" alt="Lampu 3" style="width: 100%; height: 83%; padding-bottom:20px">
+            <h4>Lampu Belakang</h4>
+          </button>
+        </div>
+      </div>
+
+    <!--
+    <div id="lamp-status" class="d-flex justify-content-between gap-3">
+      <button id="lamp1-toggle" class="btn lamp-btn" data-lampid="1" style="width: 30%;">
+        <img src="off.png" alt="Lampu 1" style="width: 100%; height: 83%; padding-bottom:20px">
+        <h4>Lampu Depan</h4>
+      </button>
+      <button id="lamp2-toggle" class="btn lamp-btn" data-lampid="2" style="width: 30%;">
+        <img src="off.png" alt="Lampu 2" style="width: 100%; height: 83%; padding-bottom:20px">
+        <h4>Lampu Samping</h4>
+      </button>
+      <button id="lamp3-toggle" class="btn lamp-btn" data-lampid="3" style="width: 30%;">
+        <img src="off.png" alt="Lampu 3" style="width: 100%; height: 83%; padding-bottom:20px">
+        <h4>Lampu Belakang</h4>
+      </button>
+    </div> -->
   </div>
+
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
     // Tambahkan event listener untuk setiap tombol lampu
@@ -78,14 +93,14 @@
     lampButtons.forEach(button => {
       button.addEventListener("click", function () {
         const lampId = this.getAttribute("data-lampid"); // Ambil ID lampu dari atribut data
-        const currentStatus = this.textContent.includes("Matikan") ? "OFF" : "ON"; // Tentukan status baru
+        const currentStatus = this.querySelector("img").src.includes("on") ? "OFF" : "ON"; // Tentukan status baru
         controlLamp(lampId, currentStatus, this); // Kirim status baru ke fungsi
       });
     });
 
     // Fungsi untuk mengontrol lampu
     function controlLamp(lampId, status, button) {
-      fetch("http://localhost:3000/lamp-control", {
+      fetch("https://iotserver.belajarcoding.web.id/lamp-control", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,16 +112,13 @@
         const messageElement = document.getElementById("message");
 
         if (data.success) {
-          // Perbarui teks tombol dan warna berdasarkan status
+          // Perbarui gambar berdasarkan status
+          const imgElement = button.querySelector("img");
           if (status === "ON") {
-            button.textContent = `Matikan Lampu ${lampId}`;
-            button.style.backgroundColor = "red";
-            button.style.color = "white";
+            imgElement.src = "on.png"; // Gambar lampu hidup
             messageElement.textContent = `Lampu ${lampId} menyala`;
           } else {
-            button.textContent = `Nyalakan Lampu ${lampId}`;
-            button.style.backgroundColor = "green";
-            button.style.color = "white";
+            imgElement.src = "off.png"; // Gambar lampu mati
             messageElement.textContent = `Lampu ${lampId} mati`;
           }
         } else {
